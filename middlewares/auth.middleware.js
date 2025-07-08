@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const isAuthenticated = (req, res, next) => {
-    const token = req.cookies.token || req.header("Authorization")?.replace("Bearer", "");
+    const token = req.cookies.token || req.header("Authorization")?.replace("Bearer", "").trim();
     if(!token) {
         return res.status(404).json({message: "Unauthorized"})
     };
@@ -17,8 +17,9 @@ export const isAuthenticated = (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
-    if(req.user.role !== "admin") {
+    if(req.user && req.user.role === "admin") {
+        next();
+    }else {
         res.status(403).json({message: "Access Denied"})
-    };
-    next();
+    }
 };
