@@ -11,13 +11,13 @@ export const registerUser = async (req, res) => {
         // check if user already exist
         const alreadyExist = await User.findOne({email});
         if(alreadyExist) {
-            res.status(400).json({message: "User already exist with this email"})
+            return res.status(400).json({message: "User already exist with this email"})
         };
 
         // create new user
         const hashPassword = await bcrypt.hash(password, 10);
         const user = await User.create({name, email, password: hashPassword});
-        res.status(200).json({message: "Account created successfully", user});
+        return res.status(200).json({message: "Account created successfully", user});
 
     } catch (error) {
         res.status(500).json({message: "Internal server error"})
@@ -32,19 +32,19 @@ export const loginUser = async (req, res) => {
         
         const user = await User.findOne({email});
         if(!user) {
-            res.status(400).json({message: "Account not exist"})
+            returnres.status(400).json({message: "Account not exist"})
         };
 
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if(!isPasswordMatch) {
-            res.status(400).json({message: "email or password in incorrect"})
+            returnres.status(400).json({message: "email or password in incorrect"})
         };
 
         const token = jwt.sign({id: user._id, role: user.role}, process.env.TOKEN_SECRET, {expiresIn: "1h"});
-        res.status(200).cookie("token", token, {expiresIn: "1h", httpOnly: true}).json({message: `Welcome Back ${user.name}`, token, user});
+        returnres.status(200).cookie("token", token, {expiresIn: "1h", httpOnly: true}).json({message: `Welcome Back ${user.name}`, token, user});
 
     } catch (error) {
-        res.status(500).json({message: "Internal server error"})
+        returnres.status(500).json({message: "Internal server error"})
     }
 
 };
@@ -54,6 +54,6 @@ export const logoutUser = async (req, res) => {
     try {
         await res.status(200).cookie("token", "", {httpOnly: true, maxAge: 0}).json({message: "Account Logout Successfully"});
     } catch (error) {
-      res.status(500).json({message: "Internal server error"})  
+    return res.status(500).json({message: "Internal server error"})  
     }
 };
